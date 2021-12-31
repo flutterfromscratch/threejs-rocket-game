@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "strict": true,
+        "allowJs": true,
+        "checkJs": false,
+        "target": "ES6",
+        "module": "CommonJS"
+
+    },
+    "include": ["**/*.ts"]
+}

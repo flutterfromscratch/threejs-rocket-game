@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "three": "^0.135.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.135.0",
+    "raw-loader": "^4.0.2",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.5.4",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.0.0",
+    "webpack-glsl-loader": "git+https://github.com/grieve/webpack-glsl-loader.git",
+    "webpack-merge": "^5.8.0"
+  },
+  "scripts": {
+    "dev": "webpack serve --config ./webpack.dev.js",
+    "build": "webpack"
+  }
+}
