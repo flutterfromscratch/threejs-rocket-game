@@ -1,15 +1,10 @@
-import {off} from 'process';
 // import * as THREE from 'three'
 import {
     AnimationClip,
-    AnimationMixer, Box3, BoxGeometry, BoxHelper,
-    Clock,
-    CubeReflectionMapping,
+    AnimationMixer, Box3, BoxGeometry, Clock,
     Group, HemisphereLight,
-    InterpolateDiscrete,
     LoopOnce,
-    LoopPingPong,
-    LoopRepeat, MathUtils, Mesh,
+    MathUtils, Mesh,
     MeshBasicMaterial,
     MeshStandardMaterial,
     MirroredRepeatWrapping, Object3D,
@@ -17,18 +12,17 @@ import {
     PMREMGenerator, PointLight,
     Scene,
     TextureLoader,
-    Vector2,
     Vector3,
     VectorKeyframeTrack, WebGLRenderer,
-    ZeroCurvatureEnding,
+
 } from 'three';
 
 import {Water} from './objects/water'
 import {Sky} from './objects/sky.js'
-import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {radToDeg} from "three/src/math/MathUtils";
-import {WaterOptions} from "three/examples/jsm/objects/Water";
+
+
 const scene = new Scene()
 
 const destructionBits = new Array<Mesh>();
@@ -42,7 +36,6 @@ const camera = new PerspectiveCamera(
 camera.position.z = 115;
 camera.position.y = 60;
 camera.rotation.x = -0.5;
-// camera.position.x = 20
 
 const renderer = new WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -163,32 +156,17 @@ function animate() {
             if (mesh.userData.clock && mesh.userData.mixer){
                 // debugger;
                 mesh.userData.mixer.update(mesh.userData.clock.getDelta());
-
-
-
-                // if (mesh.position == rocketModel.position){
-                //     console.log('removing destruction bit...');
-                // }
             }
         });
 
 
         if (platformsMoving){
             detectCollisions();
-            for (var i = 0; i < environmentBits.length; i++){
+            for (let i = 0; i < environmentBits.length; i++){
                 let mesh = environmentBits[i];
-                // if (mesh.position.z > 100){
-                //     scene.remove(mesh);
-                //     environmentBits.splice(i, 1);
-                //     console.log('removed out of viewport rock thing');
-                //     // addBackgroundBit(40);
-                //     // addBackgroundBit(backgroundBitCount++);
-                // }
-                // else{
                 mesh.position.z += speed;
-                // }
             }
-            for (var i = 0; i < challengeRows.length ; i++){
+            for (let i = 0; i < challengeRows.length ; i++){
                 challengeRows[i].rowParent.position.z += speed;
                 // challengeRows[i].rowObjects.forEach(x => {
                 //     x.position.z += speed;
@@ -199,9 +177,6 @@ function animate() {
         garbageCollector();
 
     }
-
-
-
     render()
 }
 
@@ -214,7 +189,6 @@ const moveCollectedBits = () => {
         targetNormalizedVector.z = targetPosition.z - x.position.z;
         targetNormalizedVector.normalize();
         x.translateOnAxis(targetNormalizedVector, 0.5);
-        // let target = rocketModel.position.normalize();
 
     })
 }
@@ -246,34 +220,21 @@ const garbageCollector = () => {
             challengeRows.splice(challengeRowIndex, 1);
 
         }
-
-        // let environmentObjectIndex = environmentBits.indexOf()
-    // }
-
 }
 
 function render() {
     (water.material).uniforms['time'].value += 1 / 60.0;
     if (platformsMoving){
         (water.material as any).uniforms['speed'].value += (performance.now() - speedOffset) / 10000000.0;
-        // console.log(speedClock.elapsedTime);
     }
-
 }
 
 function configureWater() {
     water.rotation.x = -Math.PI / 2;
     water.rotation.z = 180;
-    // water.receiveShadow = true;
-    // water.position.x = 2;
 
     scene.add(water);
 }
-
-// movement - please calibrate these values
-// movement - please calibrate these values
-var xSpeed = 0.5;
-var ySpeed = 0.5;
 
 function onKeyDown(event : KeyboardEvent) {
     console.log('keypress');
@@ -570,7 +531,7 @@ async function sceneSetup() {
 
 
 const startupAnimation = async () => {
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
         addNewPlatform(i, i / 5, i);
         // const cube = new Mesh(geometry, material);
         // cube.userData.mixer = new AnimationMixer(cube);
