@@ -1,0 +1,52 @@
+
+
+<!DOCTYPE html>
+<html>
+<!-- Compiled and minified CSS -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+	<div style="position:absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: black; display: flex; align-items: center" id="loadingCover">
+		<div id="spinner" style="margin: auto;">
+			<div class="preloader-wrapper big active center" style="width: 30vw; height: 30vw;">
+				<div class="spinner-layer" style="border-color: white">
+					<div class="circle-clipper left">
+						<div class="circle"></div>
+					</div><div class="gap-patch">
+					<div class="circle"></div>
+				</div><div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div style="position:absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center" id="rocketPicture">
+		<img src="static/images/rocket.svg" style="width: 20vw; height: 20vw; margin: auto;">
+	</div>
+	<div style="position:absolute; bottom: 10px; left: 0; right: 0; color: white; text-align: center; font-size: 3vw;" id="loadingTextContainer">
+		<b id="loadingProgress">
+			Lighting the engines...
+		</b>
+	</div>
+	<div style="position:absolute; bottom: 10px; right: 10px; color: white;">
+		<a class="btn-floating btn-large waves-effect waves-light red" id="startGame"><i class="material-icons">start</i></a>
+	</div>
+	<div id="joystick-zone" style="position: fixed; width: 100%; height: 100%;">
+
+		<!-- <script src="src/three.js"></script> -->
+<!--        <script src="bundle.js"></script>-->
+	</body>
+<style></style>
+</html>
+

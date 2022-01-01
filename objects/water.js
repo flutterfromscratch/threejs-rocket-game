@@ -15,11 +15,6 @@ import {
 	WebGLRenderTarget,
 	Mesh
 } from 'three';
-// import {Mesh} from "Mesh";
-// import {Mesh} from "../Mesh";
-// import {Mesh} from "../types/Mesh";
-
-// import * as oceanShader from './shaders/waterFragmentShader.glsl';
 
 /**
  * Work based on :
