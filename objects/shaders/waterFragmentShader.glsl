@@ -13,35 +13,23 @@ varying vec4 worldPosition;
 uniform float speed;
 
 vec4 getNoise( vec2 uv ) {
-    if (speed > 0.1){
-        //    float relativeSpeed = speed * 5.0;
-        //    vec2 uv0 = ( uv / 103.0 ) + vec2(time / 17.0, time / 29.0);
-//        vec2 uv1 = uv / 107.0- vec2( time / 100.0, speed);
-        //    vec2 uv2 = uv / vec2( 1091.0, 1027.0 ) - vec2( time / 10.0, time / 50.0);
-        vec2 uv3 = uv / vec2( 50.0, 50.0 ) - vec2( speed / 1000.0, speed);
+//    if (speed > 0.1){
+    float offset;
+        if (speed == 0.0){
+            offset = time / 10.0;
+        }
+    else{
+            offset = speed;
+        }
+        vec2 uv3 = uv / vec2( 50.0, 50.0 ) - vec2( speed / 1000.0, offset);
         vec2 uv0 = vec2(0,0);
             vec2 uv1 = vec2(0,0);
         vec2 uv2 = vec2(0,0);
-        //    vec2 uv3 = vec2(0,0);
-
         vec4 noise = texture2D( normalSampler, uv0 ) +
         texture2D( normalSampler, uv1 ) +
         texture2D( normalSampler, uv2 ) +
         texture2D( normalSampler, uv3 );
         return noise * 0.5 - 1.0;
-    }
-    else{
-        vec2 uv0 = ( uv / 103.0 ) + vec2(time / 17.0, time / 29.0);
-        vec2 uv1 = uv / 107.0-vec2( time / -19.0, time / 31.0 );
-        vec2 uv2 = uv / vec2( 8907.0, 9803.0 ) + vec2( time / 101.0, time / 97.0 );
-        vec2 uv3 = uv / vec2( 1091.0, 1027.0 ) - vec2( time / 109.0, time / -113.0 );
-        vec4 noise = texture2D( normalSampler, uv0 ) +
-        texture2D( normalSampler, uv1 ) +
-        texture2D( normalSampler, uv2 ) +
-        texture2D( normalSampler, uv3 );
-        return noise * 0.5 - 1.0;
-    }
-
 }
 void sunLight( const vec3 surfaceNormal, const vec3 eyeDirection, float shiny, float spec, float diffuse, inout vec3 diffuseColor, inout vec3 specularColor ) {
     vec3 reflection = normalize( reflect( -sunDirection, surfaceNormal ) );
