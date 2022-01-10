@@ -38,7 +38,7 @@ import {
     setProgress,
     shieldUiElement,
     showLevelEndScreen,
-    startGameButton,
+    startGameButton, startPanel,
     uiInit,
     updateLevelEndUI
 } from './game/ui';
@@ -46,20 +46,16 @@ import {
     addBackgroundBit,
     addChallengeRow,
     challengeRows,
-    environmentBits,
+    environmentBits, mothershipModel,
     objectsInit,
     rocketModel,
     starterBay
 } from "./game/objects";
 import {isTouchDevice} from "./isTouchDevice";
 import {detectCollisions} from "./game/collisionDetection";
-// const sceneClock = new Clock();
-
 
 export const scene = new Scene()
-
 export const destructionBits = new Array<Mesh>();
-
 export const camera = new PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
@@ -67,15 +63,18 @@ export const camera = new PerspectiveCamera(
     2000
 )
 
-let angle = 0.00;
+// Stores the current position of the camera, while the opening camera animation is playing
+let cameraAngleStartAnimation = 0.00;
 
+// The X Offset (left-to-right) of the rocket, as it moves within the scene
 let positionOffset = 0.0;
 
+// Our three renderer
 let renderer: WebGLRenderer;
-
 let joystickManager: JoystickManager | null;
-const waterGeometry = new PlaneGeometry(10000, 10000);
 
+// The plane that shows our
+const waterGeometry = new PlaneGeometry(10000, 10000);
 
 const water = new Water(
     waterGeometry,
@@ -83,10 +82,7 @@ const water = new Water(
         textureWidth: 512,
         textureHeight: 512,
         waterNormals: new TextureLoader().load('static/normals/waternormals.jpeg', function (texture) {
-
             texture.wrapS = texture.wrapT = MirroredRepeatWrapping;
-            // texture.offset = new Vector2(speed, speed);
-
         }),
         sunDirection: new Vector3(),
         sunColor: 0xffffff,
@@ -184,12 +180,12 @@ const animate = () => {
         }
 
         if (!sceneConfiguration.cameraStartAnimationPlaying) {
-            camera.position.x = 20 * Math.cos(angle);
-            camera.position.z = 20 * Math.sin(angle);
+            camera.position.x = 20 * Math.cos(cameraAngleStartAnimation);
+            camera.position.z = 20 * Math.sin(cameraAngleStartAnimation);
             camera.position.y = 30;
             // camera.position.y += 40;
             camera.lookAt(rocketModel.position);
-            angle += 0.005;
+            cameraAngleStartAnimation += 0.005;
         }
         if (sceneConfiguration.levelOver) {
             if (sceneConfiguration.speed > 0) {
@@ -274,17 +270,17 @@ async function init() {
         }
     }
 
+    startPanel.classList.remove('hidden');
+
     nextLevelButton.onclick = (event) => {
         nextLevel();
+        // sceneConfiguration.speed = 0.1;
     }
 
     startGameButton.onclick = (event) => {
         sceneConfiguration.cameraStartAnimationPlaying = true;
         shieldUiElement.classList.remove('danger');
-        // debugger;
-        // let rotation = AnimationClipCreator.CreateRotationAnimation(100, "z");
-        // camera.userData.mixer.clipAction(rotation).play();
-
+        document.getElementById('headsUpDisplay')!.classList.remove('hidden');
         camera.userData.mixer = new AnimationMixer(camera);
 
         let track = new VectorKeyframeTrack('.position', [0, 2], [
@@ -319,8 +315,9 @@ async function init() {
 
         camera.userData.mixer.clipAction(animationClip).play();
 
-        document.getElementById('startGame')!.classList.add('hidden');
-        document.getElementById('headsUpDisplay')!.style.display = 'flex';
+        // document.getElementById('startGame')!.classList.add('hidden');
+        startPanel.classList.add('hidden');
+        // document.getElementById('headsUpDisplay')!.style.display = 'flex';
         // moveTowards(camera, new Vector3(0, 0, 0));
 
         // console.log('okay');
@@ -402,6 +399,15 @@ async function init() {
     rocketModel.scale.set(0.3, 0.3, 0.3);
     // rocket.
     scene.add(rocketModel);
+    scene.add(mothershipModel);
+    // mothershipModel.position.x = 100;
+    // mothershipModel.position.y = 100;
+    mothershipModel.position.y = 200;
+    mothershipModel.position.z = 100;
+    // mothershipModel.rotation.x = 0.2;
+    // mothershipModel.rotateZ(0.4);
+    mothershipModel.scale.set(15,15,15);
+    // camera.lookAt(mothershipModel.position);
 
     sceneSetup(sceneConfiguration.level);
 }
@@ -481,6 +487,9 @@ function render() {
     if (sceneConfiguration.rocketMoving) {
         (water.material as any).uniforms['speed'].value += sceneConfiguration.speed / 50;
     }
+
+    // camera.lookAt(mothershipModel.position);
+
 }
 
 function configureWater() {

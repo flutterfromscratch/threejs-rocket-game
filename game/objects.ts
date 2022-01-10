@@ -11,6 +11,7 @@ export let shieldModel: Object3D;
 export const challengeRows = new Array<ChallengeRow>();
 export let rocketModel: Object3D;
 export let starterBay: Group;
+export let mothershipModel: Group;
 
 const gltfLoader = new GLTFLoader();
 
@@ -21,6 +22,7 @@ const crystalsGLTF = 'static/models/glowing_crystals/scene.gltf';
 const rockGLTF = 'static/models/glowing_rock/scene.gltf';
 const shieldGLTF = 'static/models/shield_item/scene.gltf';
 const starterBayGLTF = 'static/models/start_bay/scene.gltf';
+const mothershipGLTF = 'static/models/spaceship_nortend/scene.gltf';
 
 export const objectsInit = async () => {
     cliffsModel = (await gltfLoader.loadAsync(cliffsGLTF)).scene.children[0];
@@ -34,6 +36,8 @@ export const objectsInit = async () => {
     rocketModel = (await gltfLoader.loadAsync(rocketGLTF)).scene.children[0];
     setProgress('Loading starter bay...');
     starterBay = (await gltfLoader.loadAsync(starterBayGLTF)).scene;
+    setProgress('Loading mothership...');
+    mothershipModel = (await gltfLoader.loadAsync(mothershipGLTF)).scene;
 }
 
 export const addBackgroundBit = (count: number, horizonSpawn: boolean = false) => {

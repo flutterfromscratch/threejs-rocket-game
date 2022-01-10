@@ -12,6 +12,8 @@ export const nextLevelButton = document.getElementById('nextLevel')!;
 export const startAgainButton = document.getElementById('startOver')!;
 export const startGameButton = document.getElementById('startGame')!;
 
+export const startPanel = document.getElementById('levelStartPanel')!;
+
 
 export const uiInit = () => {
     startAgainButton.onclick = () => {
@@ -25,9 +27,12 @@ export const nextLevel = (reset: boolean = false) => {
     document.getElementById('endOfLevel')!.classList.remove('fadeOut');
     document.getElementById('endOfLevel')!.classList.add('hidden');
     document.getElementById('startGame')!.classList.remove('hidden');
+    document.getElementById('levelStartPanel')!.classList.remove('hidden');
 
+// debugger;
     sceneConfiguration.cameraStartAnimationPlaying = false;
     sceneConfiguration.rocketMoving = false;
+    sceneConfiguration.speed = 0.05;
     // sceneConfiguration.rocketMoving = false;
     sceneConfiguration.speed = sceneConfiguration.level * 0.1;
     if (reset) {

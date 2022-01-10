@@ -2,12 +2,14 @@ const { merge } = require('webpack-merge')
 const common = require('./webpack.common.js')
 const path = require('path');
 const ThreeMinifierPlugin = require("@yushijinhun/three-minifier-webpack");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const threeMinifier = new ThreeMinifierPlugin();
 
 
 module.exports = merge(common, {
     plugins: [
-        threeMinifier
+        threeMinifier,
+        new CleanWebpackPlugin()
     ],
     resolve: {
         plugins: [

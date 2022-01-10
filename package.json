@@ -6,8 +6,8 @@
   },
   "devDependencies": {
     "@types/three": "^0.135.0",
-    "@yushijinhun/three-minifier-rollup": "^0.3.0",
     "@yushijinhun/three-minifier-webpack": "^0.3.0",
+    "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^9.1.0",
     "html-webpack-plugin": "^5.5.0",
     "raw-loader": "^4.0.2",
