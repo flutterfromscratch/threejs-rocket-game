@@ -1,5 +1,6 @@
 // import * as THREE from 'three'
 import {
+    ACESFilmicToneMapping,
     AnimationClip,
     AnimationMixer,
     Clock,
@@ -16,7 +17,7 @@ import {
     PMREMGenerator,
     Quaternion,
     QuaternionKeyframeTrack,
-    Scene,
+    Scene, ShaderMaterial,
     SpotLight,
     TextureLoader,
     Vector3,
@@ -53,6 +54,7 @@ import {
 } from "./game/objects";
 import {isTouchDevice} from "./isTouchDevice";
 import {detectCollisions} from "./game/collisionDetection";
+import {Material} from "three/src/materials/Material";
 
 export const scene = new Scene()
 export const destructionBits = new Array<Mesh>();
@@ -73,7 +75,7 @@ let positionOffset = 0.0;
 let renderer: WebGLRenderer;
 let joystickManager: JoystickManager | null;
 
-// The plane that shows our
+// The plane that shows our water
 const waterGeometry = new PlaneGeometry(10000, 10000);
 
 const water = new Water(
@@ -90,7 +92,7 @@ const water = new Water(
         distortionScale: 3.7,
         fog: scene.fog !== undefined
     }
-) as any;
+);
 
 let distance = 0.0;
 let leftPressed = false;
@@ -144,7 +146,7 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
-    render()
+    updateWaterMaterial()
 }
 
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
@@ -154,19 +156,24 @@ objectsInit();
 
 const animate = () => {
     requestAnimationFrame(animate);
+    // If the left arrow is pressed, move the rocket to the left
     if (leftPressed) {
-        // console.log(rocketModel.position.x);
         rocketModel.position.x -= 0.5;
     }
+    // If the right arrow is pressed, move the rocket to the right
     if (rightPressed) {
         rocketModel.position.x += 0.5;
     }
+    // If the joystick is in use, update the current location of the rocket accordingly
+    rocketModel.position.x += positionOffset;
+    // Clamp the final position of the rocket to an allowable region
+    rocketModel.position.x = clamp(rocketModel.position.x, -20, 25);
+
 
     if (sceneConfiguration.rocketMoving) {
         progressUiElement.style.width = String(sceneConfiguration.coursePercentComplete() * 200) + 'px';
         sceneConfiguration.speed += 0.001;
         sceneConfiguration.courseProgress += sceneConfiguration.speed;
-        console.log();
         distance += sceneConfiguration.speed;
 
         garbageCollector();
@@ -192,10 +199,9 @@ const animate = () => {
                 sceneConfiguration.speed -= 0.1;
             }
         }
-        rocketModel.position.x += positionOffset;
-        rocketModel.position.x = clamp(rocketModel.position.x, -20, 25);
 
         renderer.render(scene, camera);
+        renderer.toneMapping = ACESFilmicToneMapping;
 
         destructionBits.forEach(mesh => {
             if (mesh.userData.clock && mesh.userData.mixer) {
@@ -247,7 +253,7 @@ const animate = () => {
             camera.lookAt(rocketModel.position);
         }
     }
-    render()
+    updateWaterMaterial()
 }
 
 /// Initialisation for the scene
@@ -256,14 +262,17 @@ async function init() {
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
     if (isTouchDevice()) {
+        // Get the area within the UI to use as our joystick
         let touchZone = document.getElementById('joystick-zone');
+
         if (touchZone != null) {
+            // Create a Joystick Manager
             joystickManager = joystick.create({zone: document.getElementById('joystick-zone')!,})
+            // Register what to do when the joystick moves
             joystickManager.on("move", (event, data) => {
                 positionOffset = data.vector.x;
-                // console.log(data.position.x);
-                // rocketModel.position.x += data.vector.x
             })
+            // When the joystick isn't being interacted with anymore, stop moving the rocket
             joystickManager.on('end', (event, data) => {
                 positionOffset = 0.0;
             })
@@ -335,26 +344,23 @@ async function init() {
     //     // let collisionBox = CubeMe
     // });
 
-    setProgress('Loading cliffs...');
-
-
     setProgress('Scene loaded!');
     document.getElementById('loadingCover')?.remove();
     document.getElementById('loadingTextContainer')?.remove();
     document.getElementById('rocketPicture')?.remove();
 
-
     // Water
-    configureWater();
+    water.rotation.x = -Math.PI / 2;
+    water.rotation.z = 0;
 
-    // Skybox
-
+    scene.add(water);
+    // Create the skybox
     const sky = new Sky();
     sky.scale.setScalar(10000);
     scene.add(sky);
 
-    const skyUniforms = (sky.material as any).uniforms;
-
+    // Set up variables to control the look of the sky
+    const skyUniforms = sky.material.uniforms;
     skyUniforms['turbidity'].value = 10;
     skyUniforms['rayleigh'].value = 2;
     skyUniforms['mieCoefficient'].value = 0.005;
@@ -367,48 +373,38 @@ async function init() {
 
     const pmremGenerator = new PMREMGenerator(renderer);
 
-
     const phi = MathUtils.degToRad(90 - parameters.elevation);
     const theta = MathUtils.degToRad(parameters.azimuth);
 
     sun.setFromSphericalCoords(1, phi, theta);
 
-    (sky.material as any).uniforms['sunPosition'].value.copy(sun);
-    (water.material as any).uniforms['sunDirection'].value.copy(sun).normalize();
-
-    // scene.environment = pmremGenerator.fromScene(sky).texture;
+    sky.material.uniforms['sunPosition'].value.copy(sun);
+    (water.material as ShaderMaterial).uniforms['sunDirection'].value.copy(sun).normalize();
     scene.environment = pmremGenerator.fromScene(sky as any).texture;
 
 
-    (water.material as any).uniforms['speed'].value = 0.0;
+    (water.material as ShaderMaterial).uniforms['speed'].value = 0.0;
 
 
-    // scene.add(starterBay);
+    // Create some lighting for the foreground of the scene
     const shadowLight = new SpotLight();
     shadowLight.lookAt(rocketModel.position);
     shadowLight.position.z = 50;
     shadowLight.position.y = 100;
     shadowLight.position.x = 100;
     shadowLight.castShadow = true;
-    // shadowLight.shadow.v
-    // shadowLight.shadow.bias = 0.002;
-    // shadowLight.position.x = 200;
     scene.add(shadowLight);
 
-    sceneConfiguration.ready = true;
+    // Set the appropriate scale for our rocket
     rocketModel.scale.set(0.3, 0.3, 0.3);
-    // rocket.
     scene.add(rocketModel);
     scene.add(mothershipModel);
-    // mothershipModel.position.x = 100;
-    // mothershipModel.position.y = 100;
+
+    // Set the scale and location for our mothership (above the player)
     mothershipModel.position.y = 200;
     mothershipModel.position.z = 100;
-    // mothershipModel.rotation.x = 0.2;
-    // mothershipModel.rotateZ(0.4);
     mothershipModel.scale.set(15,15,15);
-    // camera.lookAt(mothershipModel.position);
-
+    sceneConfiguration.ready = true;
     sceneSetup(sceneConfiguration.level);
 }
 
@@ -482,21 +478,11 @@ export const endLevel = (damaged: boolean) => {
 }
 
 
-function render() {
-    (water.material).uniforms['time'].value += 1 / 60.0;
+function updateWaterMaterial() {
+    (water.material as ShaderMaterial).uniforms['time'].value += 1 / 60.0;
     if (sceneConfiguration.rocketMoving) {
-        (water.material as any).uniforms['speed'].value += sceneConfiguration.speed / 50;
+        (water.material as ShaderMaterial).uniforms['speed'].value += sceneConfiguration.speed / 50;
     }
-
-    // camera.lookAt(mothershipModel.position);
-
-}
-
-function configureWater() {
-    water.rotation.x = -Math.PI / 2;
-    water.rotation.z = 180;
-
-    scene.add(water);
 }
 
 function onKeyDown(event: KeyboardEvent) {
@@ -516,68 +502,85 @@ function onKeyUp(event: KeyboardEvent) {
     } else if (keyCode == 39) {
         rightPressed = false;
     }
-
 }
 
 export const sceneSetup = (level: number) => {
-
+    // Remove all references to old "challenge rows" and background bits
     sceneConfiguration.challengeRowCount = 0;
     sceneConfiguration.backgroundBitCount = 0;
 
+    // Reset the camera position back to slightly infront of the ship, for the start-up animation
     camera.position.z = 50;
     camera.position.y = 12;
     camera.position.x = 15;
     camera.rotation.y = 2.5;
 
+    // Add the starter bay to the scene (the sandy shore with the rocks around it)
     scene.add(starterBay);
 
+    // Set the starter bay position to be close to the ship
     starterBay.position.copy(new Vector3(10, 0, 120));
 
+    // Rotate the rocket model back to the correct orientation to play the level
     rocketModel.rotation.x = Math.PI;
     rocketModel.rotation.z = Math.PI;
 
+    // Set the location of the rocket model to be within the starter bay
     rocketModel.position.z = 70;
     rocketModel.position.y = 10;
     rocketModel.position.x = 0;
 
+    // Remove any existing challenge rows from the scene
     challengeRows.forEach(x => {
         scene.remove(x.rowParent);
     });
 
+    // Remove any existing environment bits from the scene
     environmentBits.forEach(x => {
         scene.remove(x);
     })
 
+    // Setting the length of these arrays to zero clears the array of any values
     environmentBits.length = 0;
     challengeRows.length = 0;
 
+    // Render some challenge rows and background bits into the distance
     for (let i = 0; i < 60; i++) {
         // debugger;
         addChallengeRow(sceneConfiguration.challengeRowCount++);
         addBackgroundBit(sceneConfiguration.backgroundBitCount++);
     }
 
+    //Set the variables back to their beginning state
+
+    // Indicates that the animation where the camera flies from the current position isn't playing
     sceneConfiguration.cameraStartAnimationPlaying = false;
+    // The level isn't over (we just started it)
     sceneConfiguration.levelOver = false;
+    // The rocket isn't flying away back to the mothership
     rocketModel.userData.flyingAway = false;
+    // Resets the current progress of the course to 0, as we haven't yet started the level we're on
     sceneConfiguration.courseProgress = 0;
+    // Sets the length of the course based on our current level
     sceneConfiguration.courseLength = 1000 * level;
 
+    // Reset how many things we've collected in this level to zero
     sceneConfiguration.data.shieldsCollected = 0;
     sceneConfiguration.data.crystalsCollected = 0;
 
+    // Updates the UI to show how many things we've collected to zero.
     crystalUiElement.innerText = String(sceneConfiguration.data.crystalsCollected);
     shieldUiElement.innerText = String(sceneConfiguration.data.shieldsCollected);
 
+    // Sets the current level ID in the UI
     document.getElementById('levelIndicator')!.innerText = `LEVEL ${sceneConfiguration.level}`;
+    // Indicates that the scene setup has completed, and the scene is now ready
     sceneConfiguration.ready = true;
 }
 
 
 objectsInit().then(x => {
-    init().then(x => {
-        sceneSetup(sceneConfiguration.level);
-    })
+    init();
 })
 
 animate()
