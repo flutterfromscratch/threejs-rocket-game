@@ -251,16 +251,20 @@ const animate = () => {
             }
         }
 
+        // Call the function to relocate the current bits on the screen and move them towards the rocket
+        // so it looks like the rocket is collecting them
         moveCollectedBits();
+        // If the rockets progress equals the length of the course...
         if (sceneConfiguration.courseProgress >= sceneConfiguration.courseLength) {
-            // console.log('level over!');
-            // sceneConfiguration.rocketMoving = false;
+            // ...check that we haven't already started the level-end process
             if (!rocketModel.userData.flyingAway) {
-                // debugger;
+                // ...and end the level
                 endLevel(false);
             }
         }
+        // If the level end-scene is playing...
         if (rocketModel.userData.flyingAway) {
+            // Rotate the camera to look at the rocket on it's return journey to the mothership
             camera.lookAt(rocketModel.position);
         }
     }
@@ -299,27 +303,36 @@ async function init() {
     }
 
     startGameButton.onclick = (event) => {
+        // Indicate that the animation from the camera starting position to the rocket location is running
         sceneConfiguration.cameraStartAnimationPlaying = true;
+        // Remove the red text on the shield item, if it existed from the last level
         shieldUiElement.classList.remove('danger');
+        // Show the heads up display (that shows crystals collected, etc)
         document.getElementById('headsUpDisplay')!.classList.remove('hidden');
-        camera.userData.mixer = new AnimationMixer(camera);
 
+        // Create an animation mixer on the rocket model
+        camera.userData.mixer = new AnimationMixer(camera);
+        // Create an animation from the cameras' current position to behind the rocket
         let track = new VectorKeyframeTrack('.position', [0, 2], [
-            camera.position.x, // x 3
-            camera.position.y, // y 3
-            camera.position.z, // z 3
+            camera.position.x, // x 1
+            camera.position.y, // y 1
+            camera.position.z, // z 1
             0, // x 2
             30, // y 2
             100, // z 2
         ], InterpolateSmooth);
 
+        // Create a Quaternion rotation for the "forwards" position on the camera
         let identityRotation = new Quaternion().setFromAxisAngle(new Vector3(-1, 0, 0), .3);
 
+        // Create an animation clip that begins with the cameras' current rotation, and ends on the camera being
+        // rotated towards the game space
         let rotationClip = new QuaternionKeyframeTrack('.quaternion', [0, 2], [
             camera.quaternion.x, camera.quaternion.y, camera.quaternion.z, camera.quaternion.w,
             identityRotation.x, identityRotation.y, identityRotation.z, identityRotation.w
-        ])
+        ]);
 
+        // Associate both KeyFrameTracks to an AnimationClip, so they both play at the same time
         const animationClip = new AnimationClip('animateIn', 4, [track, rotationClip]);
         const animationAction = camera.userData.mixer.clipAction(animationClip);
         animationAction.setLoop(LoopOnce, 1);
@@ -327,34 +340,21 @@ async function init() {
 
         camera.userData.clock = new Clock();
         camera.userData.mixer.addEventListener('finished', function () {
+            // Make sure the camera is facing in the right direction
             camera.lookAt(new Vector3(0, -500, -1400));
+            // Indicate that the rocket has begun moving
             sceneConfiguration.rocketMoving = true;
-            // sceneConfiguration.backgroundMoving = true;
-            // console.log('finished animating destruction bit');
-            // this.userData.animating = true;
         });
 
+        // Play the animation
         camera.userData.mixer.clipAction(animationClip).play();
-
-        // document.getElementById('startGame')!.classList.add('hidden');
+        // Remove the "start panel" (containing the play buttons) from view
         startPanel.classList.add('hidden');
-        // document.getElementById('headsUpDisplay')!.style.display = 'flex';
-        // moveTowards(camera, new Vector3(0, 0, 0));
-
-        // console.log('okay');
     }
 
-    // renderer.shadowMap.enabled = true;
-    // renderer.shadowMap.autoUpdate = true;
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
 
-    // gltfLoader.load(rocketGLTF, (model) =>{
-    //     // model.scene.scale.set(10, 10, 10);
-    //
-    //     // boundingMesh.position.z = 70;
-    //     // let collisionBox = CubeMe
-    // });
 
     setProgress('Scene loaded!');
     document.getElementById('loadingCover')?.remove();
