@@ -56,14 +56,18 @@ import {isTouchDevice} from "./isTouchDevice";
 import {detectCollisions} from "./game/collisionDetection";
 import {Material} from "three/src/materials/Material";
 
-export const scene = new Scene()
-export const destructionBits = new Array<Mesh>();
+export const scene = new Scene();
 export const camera = new PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
     2000
-)
+);
+// Our three renderer
+let renderer: WebGLRenderer;
+
+
+export const destructionBits = new Array<Mesh>();
 
 // Stores the current position of the camera, while the opening camera animation is playing
 let cameraAngleStartAnimation = 0.00;
@@ -71,8 +75,7 @@ let cameraAngleStartAnimation = 0.00;
 // The X Offset (left-to-right) of the rocket, as it moves within the scene
 let positionOffset = 0.0;
 
-// Our three renderer
-let renderer: WebGLRenderer;
+
 let joystickManager: JoystickManager | null;
 
 // The plane that shows our water
