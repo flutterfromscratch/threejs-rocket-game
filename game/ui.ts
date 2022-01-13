@@ -16,7 +16,6 @@ export const startPanel = document.getElementById('levelStartPanel')!;
 
 
 export const uiInit = () => {
-
     startAgainButton.onclick = () => {
         nextLevel(true);
         // sceneSetup(1);

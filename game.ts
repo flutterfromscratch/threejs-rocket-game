@@ -154,9 +154,6 @@ function onWindowResize() {
 
 const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
 
-uiInit();
-objectsInit();
-
 const animate = () => {
     requestAnimationFrame(animate);
     // If the left arrow is pressed, move the rocket to the left
@@ -595,6 +592,7 @@ export const sceneSetup = (level: number) => {
 
 
 objectsInit().then(x => {
+    uiInit();
     init();
 })
 
