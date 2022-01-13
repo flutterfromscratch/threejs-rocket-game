@@ -41,51 +41,54 @@ export const objectsInit = async () => {
 }
 
 export const addBackgroundBit = (count: number, horizonSpawn: boolean = false) => {
-    console.log('adding ' + count);
+    // If we're spawning on the horizon, always spawn at a position far away from the player
+    // Otherwise, place the rocks at certain intervals into the distance-
     let zOffset = (horizonSpawn ? -1400 : -(60 * count));
+    // Create a copy of our original rock model
     let thisRock = cliffsModel.clone();
-    // debugger;
-    // debugger;
+    // Set the scale appropriately for the scene
     thisRock.scale.set(0.02, 0.02, 0.02);
+    // If the row that we're adding is divisble by two, place the rock to the left of the user
+    // otherwise, place it to the right of the user.
     thisRock.position.set(count % 2 == 0 ? 60 - Math.random() : -60 - Math.random(), 0, zOffset);
+    // Rotate the rock to a better angle
     thisRock.rotation.set(MathUtils.degToRad(-90), 0, Math.random());
-    // thisRock.traverse((object => {
-    //     if(object.isMesh)
-    // }))
-    // thisRock.castShadow = true;
-    // thisRock.receiveShadow = true;
-    // thisRock.traverse((object => obj))
+    // Finally, add the rock to the scene
     scene.add(thisRock);
-    // environmentBits.push(thisRock);
+    // Add the rock to the beginning of the environmentBits array to keep track of them (so we can clean up later)
     environmentBits.unshift(thisRock);// add to beginning of array
 }
+
 export const addChallengeRow = (count: number, horizonSpawn: boolean = false) => {
-    console.log(`creating challenge row ${count}`);
+    // Work out how far away this challenge row should be
     let zOffset = (horizonSpawn ? -1400 : -(count * 60));
+    // Create a Group for the objects. This will be the parent for these objects.
     let rowGroup = new Group();
     rowGroup.position.z = zOffset;
-    // let challengeRow = new Array<Object3D>();
     for (let i = 0; i < 5; i++) {
-        const random = Math.random() * 10; // number between 1 and 10
-        // let crystal = objectLoader(index, ObjectType.CRYSTAL);
+        // Calculate a random number between 1 and 10
+        const random = Math.random() * 10;
+
+        // If it's less than 2, create a crystal
         if (random < 2) {
             let crystal = addCrystal(i);
-
-            // crystal.updateMatrixWorld();
             rowGroup.add(crystal);
-            // challengeRow.push(addCrystal(challengeRowCount, i, zOffset));
-        } else if (random < 4) {
+
+        }
+        // If it's less than 4, spawn a rock
+        else if (random < 4) {
             let rock = addRock(i);
             rowGroup.add(rock);
-            // debugger;
-            // let rock = add
-        } else if (random > 9) {
+        }
+       // but if it's more than 9, spawn a shield
+        else if (random > 9) {
             let shield = addShield(i);
             rowGroup.add(shield);
         }
     }
+    // Add the row to the challengeRows array to keep track of it, and so we can clean them up later
     challengeRows.unshift({rowParent: rowGroup, index: sceneConfiguration.challengeRowCount++});
-    // debugger;
+    // Finally add the row to the scene
     scene.add(rowGroup);
 }
 const addCrystal = (rowCell: number) => {
@@ -93,8 +96,6 @@ const addCrystal = (rowCell: number) => {
     // crystal.position.z = zOffset;
     crystal.position.x = rowCell * 11 - 20;
     crystal.scale.set(0.02, 0.02, 0.02);
-    // attachBoundingBox(`boundingBox-crystal-${rowCell}`, 10, crystal);
-    // scene.add(crystal);
     crystal.userData.objectType = ObjectType.CRYSTAL;
     return crystal;
 }
@@ -103,11 +104,7 @@ const addRock = (rowCell: number) => {
     rock.position.x = rowCell * 11 - 20;
     rock.scale.set(5, 5, 5);
     rock.position.setY(5);
-    // rock.castShadow = true;
-    // rock.receiveShadow = true;
     rock.userData.objectType = ObjectType.ROCK;
-    // attachBoundingBox(`boundingBox-rock-${rowCell}`, 8, rock);
-    // rock.scale.set(0.02, 0.02, 0.02);
     return rock;
 }
 const addShield = (rowCell: number) => {
@@ -115,7 +112,6 @@ const addShield = (rowCell: number) => {
     shield.position.x = rowCell * 11 - 20;
     shield.position.y = 8;
     shield.userData.objectType = ObjectType.SHIELD_ITEM;
-    // attachBoundingBox(`boundingBox-shield-${rowCell}`, 10, shield);
     return shield;
 }
 
@@ -128,6 +124,4 @@ export enum ObjectType {
 interface ChallengeRow {
     index: number;
     rowParent: Group;
-    // zOffset: number;
-
 }

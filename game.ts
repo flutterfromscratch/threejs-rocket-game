@@ -201,7 +201,7 @@ const animate = () => {
         }
 
         renderer.render(scene, camera);
-        renderer.toneMapping = ACESFilmicToneMapping;
+
 
         destructionBits.forEach(mesh => {
             if (mesh.userData.clock && mesh.userData.mixer) {
@@ -212,34 +212,45 @@ const animate = () => {
 
         camera.userData?.mixer?.update(camera.userData?.clock?.getDelta());
 
-
         if (sceneConfiguration.rocketMoving) {
+            // Detect if the rocket ship has collided with any of the objects within the scene
             detectCollisions();
+
+            // Move the rocks towards the player
             for (let i = 0; i < environmentBits.length; i++) {
                 let mesh = environmentBits[i];
                 mesh.position.z += sceneConfiguration.speed;
             }
+
+            // Move the challenge rows towards the player
             for (let i = 0; i < challengeRows.length; i++) {
                 challengeRows[i].rowParent.position.z += sceneConfiguration.speed;
                 // challengeRows[i].rowObjects.forEach(x => {
                 //     x.position.z += speed;
                 // })
             }
-            // console.log(environmentBits[0].position.z);
+
+            // If the furtherest rock is less than a certain distance, create a new one on the horizon
             if ((!environmentBits.length || environmentBits[0].position.z > -1300) && !sceneConfiguration.levelOver) {
                 addBackgroundBit(sceneConfiguration.backgroundBitCount++, true);
             }
+
+            // If the furtherest challenge row is less than a certain distance, create a new one on the horizon
             if ((!challengeRows.length || challengeRows[0].rowParent.position.z > -1300) && !sceneConfiguration.levelOver) {
                 addChallengeRow(sceneConfiguration.challengeRowCount++, true);
             }
-            // console.log(starterBay.position.z);
+
+            // If the starter bay hasn't already been removed from the scene, move it towards the player
             if (starterBay != null) {
                 starterBay.position.z += sceneConfiguration.speed;
             }
+
+            // If the starter bay is outside of the players' field of view, remove it from the scene
             if (starterBay.position.z > 200) {
                 scene.remove(starterBay);
             }
         }
+
         moveCollectedBits();
         if (sceneConfiguration.courseProgress >= sceneConfiguration.courseLength) {
             // console.log('level over!');
@@ -259,6 +270,7 @@ const animate = () => {
 /// Initialisation for the scene
 async function init() {
     renderer = new WebGLRenderer();
+    renderer.toneMapping = ACESFilmicToneMapping;
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
     if (isTouchDevice()) {
