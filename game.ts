@@ -174,7 +174,6 @@ const animate = () => {
         progressUiElement.style.width = String(sceneConfiguration.coursePercentComplete() * 200) + 'px';
         sceneConfiguration.speed += 0.001;
         sceneConfiguration.courseProgress += sceneConfiguration.speed;
-        distance += sceneConfiguration.speed;
 
         garbageCollector();
     }
@@ -200,8 +199,6 @@ const animate = () => {
             }
         }
 
-        renderer.render(scene, camera);
-
 
         destructionBits.forEach(mesh => {
             if (mesh.userData.clock && mesh.userData.mixer) {
@@ -225,9 +222,6 @@ const animate = () => {
             // Move the challenge rows towards the player
             for (let i = 0; i < challengeRows.length; i++) {
                 challengeRows[i].rowParent.position.z += sceneConfiguration.speed;
-                // challengeRows[i].rowObjects.forEach(x => {
-                //     x.position.z += speed;
-                // })
             }
 
             // If the furtherest rock is less than a certain distance, create a new one on the horizon
@@ -269,6 +263,8 @@ const animate = () => {
         }
     }
     updateWaterMaterial()
+    renderer.render(scene, camera);
+
 }
 
 /// Initialisation for the scene
@@ -594,6 +590,7 @@ export const sceneSetup = (level: number) => {
 objectsInit().then(x => {
     uiInit();
     init();
+    animate();
 })
 
-animate()
+

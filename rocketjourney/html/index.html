@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<!-- Compiled and minified CSS -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<!-- <div style="position:absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: black; display: flex; align-items: center"
+     id="loadingCover">
+    <div id="spinner" style="margin: auto;">
+        <div class="preloader-wrapper big active center" style="width: 30vw; height: 30vw;">
+            <div class="spinner-layer" style="border-color: white">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- <div style="display: flex;" class="overlay"
+     id="rocketPicture">
+    <img src="static/images/rocket.svg" style="width: 20vw; height: 20vw; margin: auto;">
+</div>
+<div style="position:absolute; bottom: 10px; color: white; text-align: center; font-size: 3vw; align-items: end; justify-content: center"
+     class="overlay"
+     id="loadingTextContainer">
+    <b id="loadingProgress">
+        Lighting the engines...
+    </b>
+</div> -->
+<div style="position:absolute; bottom: 10px; right: 10px; color: white; flex-direction: column; gap: 20px;" id="levelStartPanel" class="hidden">
+    <a class="btn-floating btn-large waves-effect waves-light red" id="startGame"><i
+            class="material-icons">start</i></a>
+    <a class="btn-floating btn-large waves-effect waves-light blue modal-trigger" href="#modal1"><i
+            class="material-icons">help</i></a>
+</div>
+<div id="joystick-zone" style="position: absolute; width: 100%; height: 100%;"></div>
+<div id="headsUpDisplay"
+     style="flex-direction: column; position:absolute; bottom: 10px; left: 10px;" class="hidden">
+    <div style="display: flex; flex-direction: row; margin: 5px">
+        <img src="static/ui/crystal_icon.png" style="width: 5vw">
+        <span class="ui-element" id="crystalCount">0</span>
+    </div>
+    <div style="display: flex; flex-direction: row; margin: 5px">
+        <img src="static/ui/shield_icon.png" style="width: 5vw">
+        <span class="ui-element" id="shieldCount">0</span>
+    </div>
+    <div style="background-color: rgba(1,1,1,0.5); width: 200px; height: 50px; display: flex; align-items: center; justify-items: center;">
+        <span style="position:fixed; color: white; text-align: center; width: 200px;">PROGRESS</span>
+        <div style="background-color: rgba(0,0,0,0.8); width: 0; height: 50px;" id="courseProgress"></div>
+    </div>
+    <div style="background-color: rgba(1,1,1,0.5); width: 200px; height: 50px;" id="levelIndicator">
+        LEVEL 1
+    </div>
+</div>
+
+<div class="overlay hidden" id="endOfLevel"
+     style="flex-direction: column; align-items: center; justify-content: center;">
+    <b class="ui-element" id="levelDescriptor">LEVEL DESCRIPTOR</b>
+    <div style="display: flex; flex-direction: row; margin: 5px">
+        <img src="static/ui/crystal_icon.png" style="width: 5vw">
+        <span class="ui-element" id="crystalCountLevelEnd">0</span>
+    </div>
+    <b class="ui-element" id="shipStatus" style="font-size: 2.5vw">Ship status...</b>
+    <a class="waves-effect waves-light btn" id="nextLevel">NEXT LEVEL</a>
+    <a class="waves-effect waves-light btn red hidden" id="startOver">START AGAIN</a>
+
+</div>
+
+<!--&lt;!&ndash; Modal Trigger &ndash;&gt;-->
+<!--<a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>-->
+
+<!-- Modal Structure -->
+<div id="modal1" class="modal blue-grey darken-1 white-text center" style="position:absolute; border-radius: 20px">
+    <div class="modal-content ">
+        <img src="static/images/rocket.svg" style="width: 20vw; height: 20vw; margin: auto;">
+        <h4>WELCOME CAPTAIN!</h4>
+        <p>You have been chosen to visit the nearest planet to our spaceship to pick up more energy crystals for our ship.</p>
+        <p>Your rocket has primative engines, but we'll upgrade it every time you come back to the ship. Later expeditions will become progressively longer.</p>
+        <p>Along your journey, be sure to look out for the following things:</p>
+        <ul>
+            <li><b>Energy Crystals</b>: This is what you're here for! Try to get as many as you can in the time you have.</li>
+            <li><b>Rocks</b>: Be careful of these! If your ship hits too many rocks it will force a return back to our ship for repairs. Your ship will still fly while your ship has more than <b>-5 shields.</b></li>
+            <li><b>Shield Rechargers</b>: These will improve the strength of your shields, up to a maximum of 5! You'll lose a shield point for every rock you hit (which can happen at higher speeds!)</li>
+        </ul>
+        <p>Enjoy the journey!</p>
+        <p>
+            <i>Made in ThreeJS and TypeScript</i>
+        </p>
+    <p>
+        <i>Models used:</i>
+    </p>
+
+        <p>
+            <a href="https://skfb.ly/OBJJ">"Rocket"</a> by Constantine Tvalashvili is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+        </p>
+       <p>
+           <a href="https://skfb.ly/6WMGE">"Cliffs"</a> by DJMaesen is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+       </p>
+      <p>
+           <a href="https://skfb.ly/opO6S">"Shield Item"</a> by Reikan is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+      </p>
+      <p>
+          <a href="https://skfb.ly/6RSu8">"Glowing Rock"</a> by JAY2.0 is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+      </p>
+       <p>
+           <a href="https://skfb.ly/6TJ9A">"Glowing crystals"</a> by SusanKing is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+       </p>
+        <p>
+            <a href="https://skfb.ly/6UAUW">"SpaceShip "NORTEND""</a>  by Ruslan Malovsky is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+        </p>
+        <p>Also, thanks to my wife for all the playtesting and bug reports 🥰.</p>
+    </div>
+<!--    <div class="modal-footer">-->
+<!--        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>-->
+<!--    </div>-->
+</div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.modal');
+        var instances = M.Modal.init(elems, {});
+        console.log(instances);
+    });
+</script>
+
+
+
+<!-- <script src="src/three.js"></script> -->
+<!--        <script src="bundle.js"></script>-->
+</body>
+<style>
+    .ui-element {
+        font-size: 3vw;
+        font-style: italic;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-items: center;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        align-items: center
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .danger{
+        color: red;
+    }
+
+
+    @keyframes fadein {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeout {
+        100% {
+            opacity: 1;
+        }
+        0% {
+            opacity: 0;
+        }
+    }
+
+    .fadeIn {
+        opacity: 1;
+        animation: fadein 1s linear;
+        background-color: black;
+    }
+
+    .fadeOut {
+        opacity: 1;
+        animation: fadeout 1s linear;
+        background-color: black;
+    }
+
+
+</style>
+</html>
+

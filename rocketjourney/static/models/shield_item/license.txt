@@ -1,0 +1,11 @@
+Model Information:
+* title:	Shield Item
+* source:	https://sketchfab.com/3d-models/shield-item-a72cd3f034ec4e6b88116b626e39401f
+* author:	Reikan (https://sketchfab.com/jcremoux)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Shield Item" (https://sketchfab.com/3d-models/shield-item-a72cd3f034ec4e6b88116b626e39401f) by Reikan (https://sketchfab.com/jcremoux) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
